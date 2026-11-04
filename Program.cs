@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
-namespace ClinicQueue;
-
-public class Patient
+class Patient
 {
-    public string Name { get; }
+    public string Name;
 
     public Patient(string name)
     {
@@ -12,40 +13,37 @@ public class Patient
     }
 }
 
-public class Clinic
+class Clinic
 {
-    private readonly Queue<Patient> queue = new Queue<Patient>();
-    private readonly int receptionTime;
+    Queue<Patient> queue = new Queue<Patient>();
+    int time;
 
-    public Clinic(int receptionTime)
+    public Clinic(int time)
     {
-        this.receptionTime = receptionTime;
+        this.time = time;
     }
-
-    public bool HasPatients => queue.Count > 0;
 
     public void AddPatient(Patient patient)
     {
         queue.Enqueue(patient);
-        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Новий пацієнт: {patient.Name}");
-        PrintQueue();
+        Console.WriteLine("Новий пацієнт: " + patient.Name);
+        ShowQueue();
     }
 
     public void ReceivePatient()
     {
-        if (queue.Count == 0)
-        {
-            Console.WriteLine("Черга порожня, лікар вільний");
-            return;
-        }
-
         Patient patient = queue.Dequeue();
-        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Лікар приймає: {patient.Name}");
-        Thread.Sleep(receptionTime);
-        PrintQueue();
+        Console.WriteLine("Лікар приймає: " + patient.Name);
+        Thread.Sleep(time);
+        ShowQueue();
     }
 
-    public void PrintQueue()
+    public int Count()
+    {
+        return queue.Count;
+    }
+
+    public void ShowQueue()
     {
         if (queue.Count == 0)
         {
@@ -53,7 +51,12 @@ public class Clinic
         }
         else
         {
-            Console.WriteLine("Черга: " + string.Join(", ", queue.Select(patient => patient.Name)));
+            Console.Write("Черга: ");
+            foreach (Patient p in queue)
+            {
+                Console.Write(p.Name + " ");
+            }
+            Console.WriteLine();
         }
         Console.WriteLine();
     }
@@ -61,7 +64,7 @@ public class Clinic
 
 class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
 
@@ -75,11 +78,11 @@ class Program
         clinic.ReceivePatient();
         clinic.AddPatient(new Patient("Андрій"));
 
-        while (clinic.HasPatients)
+        while (clinic.Count() > 0)
         {
             clinic.ReceivePatient();
         }
 
-        Console.WriteLine("Усіх пацієнтів прийнято");
+        Console.WriteLine("Всіх пацієнтів прийнято");
     }
 }
