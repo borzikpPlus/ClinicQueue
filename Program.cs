@@ -13,14 +13,32 @@ class Patient
     }
 }
 
+class Doctor
+{
+    public string Name;
+    public int Time;
+
+    public Doctor(string name, int time)
+    {
+        Name = name;
+        Time = time;
+    }
+
+    public void Receive(Patient patient)
+    {
+        Console.WriteLine("Лікар " + Name + " приймає: " + patient.Name);
+        Thread.Sleep(Time);
+    }
+}
+
 class Clinic
 {
     Queue<Patient> queue = new Queue<Patient>();
-    int time;
+    Doctor doctor;
 
-    public Clinic(int time)
+    public Clinic(Doctor doctor)
     {
-        this.time = time;
+        this.doctor = doctor;
     }
 
     public void AddPatient(Patient patient)
@@ -33,8 +51,7 @@ class Clinic
     public void ReceivePatient()
     {
         Patient patient = queue.Dequeue();
-        Console.WriteLine("Лікар приймає: " + patient.Name);
-        Thread.Sleep(time);
+        doctor.Receive(patient);
         ShowQueue();
     }
 
@@ -68,7 +85,8 @@ class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        Clinic clinic = new Clinic(2000);
+        Doctor doctor = new Doctor("Коваленко", 2000);
+        Clinic clinic = new Clinic(doctor);
 
         clinic.AddPatient(new Patient("Іван"));
         clinic.AddPatient(new Patient("Олена"));
